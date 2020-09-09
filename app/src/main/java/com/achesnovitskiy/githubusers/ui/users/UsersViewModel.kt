@@ -18,7 +18,7 @@ interface UsersViewModel {
 
     val loadingStateObservable: Observable<LoadingState>
 
-    val loadObserver: Observer<Unit>
+    val loadUsersObserver: Observer<Unit>
 }
 
 class UsersViewModelImpl @Inject constructor(private val repository: Repository) :
@@ -33,12 +33,12 @@ class UsersViewModelImpl @Inject constructor(private val repository: Repository)
     override val loadingStateObservable: Observable<LoadingState>
         get() = loadingStateBehaviorSubject
 
-    override val loadObserver: PublishSubject<Unit> = PublishSubject.create()
+    override val loadUsersObserver: PublishSubject<Unit> = PublishSubject.create()
 
     init {
-        loadObserver
+        loadUsersObserver
             .switchMap {
-                repository.loadCompletable
+                repository.loadUsersCompletable()
                     .andThen(
                         Observable.just(
                             LoadingState(
@@ -56,7 +56,7 @@ class UsersViewModelImpl @Inject constructor(private val repository: Repository)
                     .onErrorReturnItem(
                         LoadingState(
                             isLoading = false,
-                            errorRes = R.string.users_loading_error_message
+                            errorRes = R.string.loading_error_message
                         )
                     )
             }

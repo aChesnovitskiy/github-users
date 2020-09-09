@@ -3,11 +3,13 @@ package com.achesnovitskiy.githubusers.ui.userinfo
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import com.achesnovitskiy.githubusers.R
 import com.achesnovitskiy.githubusers.app.App.Companion.appComponent
 import com.achesnovitskiy.githubusers.ui.base.BaseFragment
 import com.achesnovitskiy.githubusers.ui.userinfo.di.DaggerUserInfoComponent
 import com.achesnovitskiy.githubusers.ui.userinfo.di.UserInfoModule
+import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso.Picasso
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -37,15 +39,23 @@ class UserInfoFragment : BaseFragment(R.layout.fragment_user_info) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         user_info_back_button_image_view.setOnClickListener {
+            if (isSnackbarInitialized) {
+                snackbar.dismiss()
+
+                isSnackbarInitialized = false
+            }
+
             requireActivity().onBackPressed()
         }
+
+        viewModel.loadUserInfoObserver.onNext(userName)
     }
 
     override fun onResume() {
         super.onResume()
 
         disposable = CompositeDisposable(
-            viewModel.getUserInfoObservable(userName)
+            viewModel.userInfoObservable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { userInfo ->
@@ -64,34 +74,35 @@ class UserInfoFragment : BaseFragment(R.layout.fragment_user_info) {
                     },
                     {
                     }
-                )
+                ),
 
-//            reposViewModel.loadingStateObservable
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe { loadingState ->
-//                    repos_progress_bar.isVisible = loadingState.isLoading
-//
-//                    if (loadingState.errorRes != null) {
-//                        snackbar = Snackbar.make(
-//                            requireView(),
-//                            getString(loadingState.errorRes),
-//                            Snackbar.LENGTH_INDEFINITE
-//                        ).apply {
-//                            setAction(getString(R.string.repeat)) {
-//                                reposViewModel.refreshObserver.onNext(Unit)
-//                            }
-//                            show()
-//                        }
-//
-//                        isSnackbarInitialized = true
-//                    } else {
-//                        if (isSnackbarInitialized) {
-//                            snackbar.dismiss()
-//
-//                            isSnackbarInitialized = false
-//                        }
-//                    }
-//                }
+            viewModel.loadingStateObservable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { loadingState ->
+                    user_info_progress_bar.isVisible = loadingState.isLoading
+
+                    if (loadingState.errorRes != null) {
+                        snackbar = Snackbar.make(
+                            requireView(),
+                            getString(loadingState.errorRes),
+                            Snackbar.LENGTH_INDEFINITE
+                        ).apply {
+                            setAction(getString(R.string.repeat)) {
+                                viewModel.loadUserInfoObserver.onNext(userName)
+                            }
+
+                            show()
+                        }
+
+                        isSnackbarInitialized = true
+                    } else {
+                        if (isSnackbarInitialized) {
+                            snackbar.dismiss()
+
+                            isSnackbarInitialized = false
+                        }
+                    }
+                }
         )
     }
 }

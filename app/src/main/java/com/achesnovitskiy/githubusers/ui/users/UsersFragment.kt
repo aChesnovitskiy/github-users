@@ -33,10 +33,6 @@ class UsersFragment : BaseFragment(R.layout.fragment_users) {
         }
     }
 
-    private lateinit var snackbar: Snackbar
-
-    private var isSnackbarInitialized: Boolean = false
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -61,7 +57,7 @@ class UsersFragment : BaseFragment(R.layout.fragment_users) {
             addItemDecoration(divider)
         }
 
-        viewModel.loadObserver.onNext(Unit)
+        viewModel.loadUsersObserver.onNext(Unit)
     }
 
     override fun onResume() {
@@ -91,7 +87,7 @@ class UsersFragment : BaseFragment(R.layout.fragment_users) {
                             Snackbar.LENGTH_INDEFINITE
                         ).apply {
                             setAction(getString(R.string.repeat)) {
-                                viewModel.loadObserver.onNext(Unit)
+                                viewModel.loadUsersObserver.onNext(Unit)
                             }
 
                             show()

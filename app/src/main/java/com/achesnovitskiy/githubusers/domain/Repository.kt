@@ -7,51 +7,60 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 interface Repository {
     val userItemsObservable: Observable<List<UserItem>>
 
-    val loadCompletable: Completable
+    val userInfoObservable: Observable<UserInfo>
 
-    fun userInfoObservable(name: String): Observable<UserInfo>
+    fun loadUsersCompletable(): Completable
+
+    fun loadUserInfoCompletable(name: String): Completable
 }
 
 class RepositoryImpl @Inject constructor(
     private val api: Api
 ) : Repository {
 
-    private val userItemsObservableBehaviorSubject: BehaviorSubject<List<UserItem>> =
-        BehaviorSubject.create()
+    private val userItemsBehaviorSubject: BehaviorSubject<List<UserItem>> = BehaviorSubject.create()
+
+    private val userInfoPublishSubject: PublishSubject<UserInfo> = PublishSubject.create()
 
     override val userItemsObservable: Observable<List<UserItem>>
-        get() = userItemsObservableBehaviorSubject
+        get() = userItemsBehaviorSubject
 
-    override val loadCompletable: Completable =
+    override val userInfoObservable: Observable<UserInfo>
+        get() = userInfoPublishSubject
+
+    override fun loadUsersCompletable(): Completable =
         api.getUsers()
             .map { userItemResponses ->
-                userItemResponses.map { userItemResponse ->
-                    UserItem(
-                        name = userItemResponse.name,
-                        avatarUrl = userItemResponse.avatarUrl
-                    )
-                }
-            }
-            .map {
-                userItemsObservableBehaviorSubject.onNext(it)
+                userItemsBehaviorSubject.onNext(
+                    userItemResponses.map { userItemResponse ->
+                        UserItem(
+                            name = userItemResponse.name,
+                            avatarUrl = userItemResponse.avatarUrl
+                        )
+                    }
+                )
             }
             .ignoreElements()
             .subscribeOn(Schedulers.io())
 
-    override fun userInfoObservable(name: String): Observable<UserInfo> =
+    override fun loadUserInfoCompletable(name: String): Completable =
         api.getUserInfo(name)
             .map { userResponse ->
-                UserInfo(
-                    name = userResponse.name,
-                    avatarUrl = userResponse.avatarUrl,
-                    webpage = userResponse.webpage,
-                    location = userResponse.location
+                userInfoPublishSubject.onNext(
+                    UserInfo(
+                        name = userResponse.name,
+                        avatarUrl = userResponse.avatarUrl,
+                        webpage = userResponse.webpage,
+                        location = userResponse.location
+                    )
                 )
             }
+            .ignoreElements()
             .subscribeOn(Schedulers.io())
 }
