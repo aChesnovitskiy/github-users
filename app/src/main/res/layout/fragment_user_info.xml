@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.userinfo.UserInfoFragment">
+
+    <FrameLayout
+        android:id="@+id/user_info_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/color_primary"
+        android:elevation="@dimen/elevation_toolbar_4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/user_info_back_button_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|start"
+            android:layout_marginStart="@dimen/spacing_small_8"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_left_black_24"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/user_info_title_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/user_info" />
+
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/user_info_avatar_image_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="@dimen/spacing_normal_16"
+        android:layout_marginTop="@dimen/spacing_normal_16"
+        app:layout_constraintBottom_toTopOf="@+id/user_info_nickname"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="@dimen/user_info_avatar_size_160"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/user_info_toolbar"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintWidth_max="@dimen/user_info_avatar_size_160"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/ic_error_black_48" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/user_info_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3" />
+
+    <TextView
+        android:id="@+id/user_info_nickname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_normal_16"
+        android:layout_marginTop="@dimen/spacing_normal_16"
+        android:gravity="end"
+        android:text="@string/nickname_field"
+        app:layout_constraintBottom_toTopOf="@+id/user_info_webpage"
+        app:layout_constraintEnd_toStartOf="@+id/user_info_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/user_info_avatar_image_view" />
+
+    <TextView
+        android:id="@+id/user_info_webpage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_normal_16"
+        android:layout_marginTop="@dimen/spacing_small_8"
+        android:gravity="end"
+        android:text="@string/webpage_field"
+        app:layout_constraintBottom_toTopOf="@+id/user_info_location"
+        app:layout_constraintEnd_toStartOf="@+id/user_info_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/user_info_nickname" />
+
+    <TextView
+        android:id="@+id/user_info_location"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_normal_16"
+        android:layout_marginTop="@dimen/spacing_small_8"
+        android:gravity="end"
+        android:text="@string/location_field"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/user_info_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/user_info_webpage" />
+
+    <TextView
+        android:id="@+id/user_info_nickname_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_small_8"
+        android:layout_marginEnd="@dimen/spacing_normal_16"
+        app:layout_constraintBottom_toBottomOf="@+id/user_info_nickname"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/user_info_nickname"
+        app:layout_constraintTop_toTopOf="@+id/user_info_nickname"
+        tools:text="JohnDoe" />
+
+    <TextView
+        android:id="@+id/user_info_webpage_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_small_8"
+        android:layout_marginEnd="@dimen/spacing_normal_16"
+        android:autoLink="web"
+        app:layout_constraintBottom_toBottomOf="@+id/user_info_webpage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/user_info_webpage"
+        app:layout_constraintTop_toTopOf="@+id/user_info_webpage"
+        tools:text="www.google.com" />
+
+    <TextView
+        android:id="@+id/user_info_location_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_small_8"
+        android:layout_marginEnd="@dimen/spacing_normal_16"
+        app:layout_constraintBottom_toBottomOf="@+id/user_info_location"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/user_info_location"
+        app:layout_constraintTop_toTopOf="@+id/user_info_location"
+        tools:text="London" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

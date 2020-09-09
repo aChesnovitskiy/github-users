@@ -5,7 +5,9 @@ import retrofit2.http.*
 
 interface Api {
 
-    @Headers("accept: application/vnd.github.v3+json")
     @GET("users")
-    fun getUsers(): Observable<List<UserResponse>>
+    fun getUsers(): Observable<List<UserItemResponse>>
+
+    @GET("users/{username}")
+    fun getUserInfo(@Path("username") name: String): Observable<UserInfoResponse>
 }

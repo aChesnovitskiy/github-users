@@ -10,7 +10,13 @@
     <dimen name="font_size_large_18">18sp</dimen>
     <dimen name="font_size_huge_22">22sp</dimen>
 
+    <!-- Elevation -->
+    <dimen name="elevation_toolbar_4">4dp</dimen>
+
     <!-- List item -->
-    <dimen name="item_icon_size_48">48dp</dimen>
+    <dimen name="item_avatar_size_48">48dp</dimen>
+
+    <!-- User info -->
+    <dimen name="user_info_avatar_size_160">160dp</dimen>
 
 </resources>

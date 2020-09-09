@@ -1,8 +1,8 @@
 package com.achesnovitskiy.githubusers.ui.pojo
 
-data class User(
+data class UserInfo(
     val name: String,
     val avatarUrl: String,
-    val profileUrl: String,
+    val webpage: String,
     val location: String
 )

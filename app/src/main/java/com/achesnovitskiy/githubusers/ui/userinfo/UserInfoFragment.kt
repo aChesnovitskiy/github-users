@@ -1,63 +1,43 @@
-package com.achesnovitskiy.githubusers.ui.users
+package com.achesnovitskiy.githubusers.ui.userinfo
 
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.achesnovitskiy.githubusers.R
 import com.achesnovitskiy.githubusers.app.App.Companion.appComponent
 import com.achesnovitskiy.githubusers.ui.base.BaseFragment
-import com.achesnovitskiy.githubusers.ui.users.di.DaggerUsersComponent
-import com.achesnovitskiy.githubusers.ui.users.di.UsersModule
+import com.achesnovitskiy.githubusers.ui.userinfo.di.DaggerUserInfoComponent
+import com.achesnovitskiy.githubusers.ui.userinfo.di.UserInfoModule
+import com.squareup.picasso.Picasso
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.android.synthetic.main.fragment_users.*
+import kotlinx.android.synthetic.main.fragment_user_info.*
 import javax.inject.Inject
 
-class UsersFragment : BaseFragment(R.layout.fragment_users) {
+class UserInfoFragment : BaseFragment(R.layout.fragment_user_info) {
 
     @Inject
-    lateinit var viewModel: UsersViewModel
+    lateinit var viewModel: UserInfoViewModel
 
-    private val usersAdapter: UsersAdapter by lazy(LazyThreadSafetyMode.NONE) {
-        UsersAdapter { userItem ->
-            this.findNavController()
-                .navigate(
-                    UsersFragmentDirections.actionUsersFragmentToUserInfoFragment(userItem.name)
-                )
-        }
-    }
+    private val userName: String
+        get() = arguments?.get("user_name") as String
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        DaggerUsersComponent
+        DaggerUserInfoComponent
             .builder()
             .appComponent(appComponent)
-            .usersModule(
-                UsersModule(viewModelStoreOwner = this)
+            .userInfoModule(
+                UserInfoModule(viewModelStoreOwner = this)
             )
             .build()
             .inject(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val divider = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-
-        with(users_recycler_view) {
-            adapter = usersAdapter
-
-            layoutManager = LinearLayoutManager(context)
-
-            addItemDecoration(divider)
-        }
-
-        users_swipe_refresh_layout.setOnRefreshListener {
-            viewModel.refreshObserver.onNext(Unit)
-
-            users_swipe_refresh_layout.isRefreshing = false
+        user_info_back_button_image_view.setOnClickListener {
+            requireActivity().onBackPressed()
         }
     }
 
@@ -65,13 +45,22 @@ class UsersFragment : BaseFragment(R.layout.fragment_users) {
         super.onResume()
 
         disposable = CompositeDisposable(
-            viewModel.usersObservable
+            viewModel.getUserInfoObservable(userName)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { users ->
-//                    repos_list_is_empty_text_view.isVisible = repos.isNullOrEmpty()
+                    { userInfo ->
+                        Picasso.get()
+                            .load(userInfo.avatarUrl)
+                            .error(R.drawable.ic_error_black_48)
+                            .resize(500, 500)
+                            .centerCrop()
+                            .into(user_info_avatar_image_view)
 
-                        usersAdapter.submitList(users)
+                        user_info_nickname_value.text = userInfo.name
+
+                        user_info_webpage_value.text = userInfo.webpage
+
+                        user_info_location_value.text = userInfo.location
                     },
                     {
                     }

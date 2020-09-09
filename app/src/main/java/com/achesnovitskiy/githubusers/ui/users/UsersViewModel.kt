@@ -28,13 +28,7 @@ class UsersViewModelImpl @Inject constructor(private val repository: Repository)
         BehaviorSubject.create()
 
     override val usersObservable: Observable<List<UserItem>>
-                get() = repository.usersObservable
-//        get() = Observable.just(
-//            listOf(
-//                UserItem("1", "1"),
-//                UserItem("2", "2")
-//            )
-//        )
+                get() = repository.userItemsObservable()
 
     override val loadingStateObservable: Observable<LoadingState>
         get() = loadingStateBehaviorSubject

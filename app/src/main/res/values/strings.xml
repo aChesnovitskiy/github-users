@@ -2,4 +2,10 @@
     <string name="app_name">GitHub Users</string>
     <string name="repeat">Repeat</string>
     <string name="users_loading_error_message">Can\'t update the list. Check your internet connection.</string>
+
+    // User Info screen
+    <string name="user_info">User Info</string>
+    <string name="nickname_field">Nickname:</string>
+    <string name="webpage_field">Webpage:</string>
+    <string name="location_field">Location:</string>
 </resources>
