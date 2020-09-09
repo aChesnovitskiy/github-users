@@ -2,7 +2,9 @@ package com.achesnovitskiy.githubusers.ui.users
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,6 +13,7 @@ import com.achesnovitskiy.githubusers.app.App.Companion.appComponent
 import com.achesnovitskiy.githubusers.ui.base.BaseFragment
 import com.achesnovitskiy.githubusers.ui.users.di.DaggerUsersComponent
 import com.achesnovitskiy.githubusers.ui.users.di.UsersModule
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_users.*
@@ -29,6 +32,10 @@ class UsersFragment : BaseFragment(R.layout.fragment_users) {
                 )
         }
     }
+
+    private lateinit var snackbar: Snackbar
+
+    private var isSnackbarInitialized: Boolean = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -54,11 +61,7 @@ class UsersFragment : BaseFragment(R.layout.fragment_users) {
             addItemDecoration(divider)
         }
 
-        users_swipe_refresh_layout.setOnRefreshListener {
-            viewModel.refreshObserver.onNext(Unit)
-
-            users_swipe_refresh_layout.isRefreshing = false
-        }
+        viewModel.loadObserver.onNext(Unit)
     }
 
     override fun onResume() {
@@ -69,40 +72,40 @@ class UsersFragment : BaseFragment(R.layout.fragment_users) {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { users ->
-//                    repos_list_is_empty_text_view.isVisible = repos.isNullOrEmpty()
-
                         usersAdapter.submitList(users)
                     },
                     {
+                        Log.e("My", it.message, it)
                     }
-                )
+                ),
 
-//            reposViewModel.loadingStateObservable
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe { loadingState ->
-//                    repos_progress_bar.isVisible = loadingState.isLoading
-//
-//                    if (loadingState.errorRes != null) {
-//                        snackbar = Snackbar.make(
-//                            requireView(),
-//                            getString(loadingState.errorRes),
-//                            Snackbar.LENGTH_INDEFINITE
-//                        ).apply {
-//                            setAction(getString(R.string.repeat)) {
-//                                reposViewModel.refreshObserver.onNext(Unit)
-//                            }
-//                            show()
-//                        }
-//
-//                        isSnackbarInitialized = true
-//                    } else {
-//                        if (isSnackbarInitialized) {
-//                            snackbar.dismiss()
-//
-//                            isSnackbarInitialized = false
-//                        }
-//                    }
-//                }
+            viewModel.loadingStateObservable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { loadingState ->
+                    users_progress_bar.isVisible = loadingState.isLoading
+
+                    if (loadingState.errorRes != null) {
+                        snackbar = Snackbar.make(
+                            requireView(),
+                            getString(loadingState.errorRes),
+                            Snackbar.LENGTH_INDEFINITE
+                        ).apply {
+                            setAction(getString(R.string.repeat)) {
+                                viewModel.loadObserver.onNext(Unit)
+                            }
+
+                            show()
+                        }
+
+                        isSnackbarInitialized = true
+                    } else {
+                        if (isSnackbarInitialized) {
+                            snackbar.dismiss()
+
+                            isSnackbarInitialized = false
+                        }
+                    }
+                }
         )
     }
 }
