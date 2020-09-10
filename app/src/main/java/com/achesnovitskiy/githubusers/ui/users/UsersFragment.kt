@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.achesnovitskiy.githubusers.R
 import com.achesnovitskiy.githubusers.app.App.Companion.appComponent
 import com.achesnovitskiy.githubusers.ui.base.BaseFragment
+import com.achesnovitskiy.githubusers.ui.pojo.UserItem
 import com.achesnovitskiy.githubusers.ui.users.di.DaggerUsersComponent
 import com.achesnovitskiy.githubusers.ui.users.di.UsersModule
 import com.google.android.material.snackbar.Snackbar
@@ -25,12 +26,21 @@ class UsersFragment : BaseFragment(R.layout.fragment_users) {
     lateinit var viewModel: UsersViewModel
 
     private val usersAdapter: UsersAdapter by lazy(LazyThreadSafetyMode.NONE) {
-        UsersAdapter { userItem ->
-            this.findNavController()
-                .navigate(
-                    UsersFragmentDirections.actionUsersFragmentToUserInfoFragment(userItem.name)
-                )
-        }
+        UsersAdapter(
+            onItemClickListener = this::navigateToUserInfo,
+            onReachingLastItemListener = this::loadNextPage
+        )
+    }
+
+    private fun navigateToUserInfo(userItem: UserItem) {
+        this.findNavController()
+            .navigate(
+                UsersFragmentDirections.actionUsersFragmentToUserInfoFragment(userItem.name)
+            )
+    }
+
+    private fun loadNextPage() {
+        viewModel.loadUsersObserver.onNext(Unit)
     }
 
     override fun onAttach(context: Context) {
@@ -71,37 +81,42 @@ class UsersFragment : BaseFragment(R.layout.fragment_users) {
                         usersAdapter.submitList(users)
                     },
                     {
-                        Log.e("My", it.message, it)
+                        Log.e("My_UserFragment", it.message, it)
                     }
                 ),
 
             viewModel.loadingStateObservable
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { loadingState ->
-                    users_progress_bar.isVisible = loadingState.isLoading
+                .subscribe(
+                    { loadingState ->
+                        users_progress_bar.isVisible = loadingState.isLoading
 
-                    if (loadingState.errorRes != null) {
-                        snackbar = Snackbar.make(
-                            requireView(),
-                            getString(loadingState.errorRes),
-                            Snackbar.LENGTH_INDEFINITE
-                        ).apply {
-                            setAction(getString(R.string.repeat)) {
-                                viewModel.loadUsersObserver.onNext(Unit)
+                        if (loadingState.errorRes != null) {
+                            snackbar = Snackbar.make(
+                                requireView(),
+                                getString(loadingState.errorRes),
+                                Snackbar.LENGTH_INDEFINITE
+                            ).apply {
+                                setAction(getString(R.string.repeat)) {
+                                    viewModel.loadUsersObserver.onNext(Unit)
+                                }
+
+                                show()
                             }
 
-                            show()
-                        }
+                            isSnackbarInitialized = true
+                        } else {
+                            if (isSnackbarInitialized) {
+                                snackbar.dismiss()
 
-                        isSnackbarInitialized = true
-                    } else {
-                        if (isSnackbarInitialized) {
-                            snackbar.dismiss()
-
-                            isSnackbarInitialized = false
+                                isSnackbarInitialized = false
+                            }
                         }
+                    },
+                    {
+                        Log.e("My_UserFragment", it.message, it)
                     }
-                }
+                )
         )
     }
 }

@@ -6,7 +6,7 @@ import retrofit2.http.*
 interface Api {
 
     @GET("users")
-    fun getUsers(): Observable<List<UserItemResponse>>
+    fun getUsers(@Query("since") userId: Int): Observable<List<UserItemResponse>>
 
     @GET("users/{username}")
     fun getUserInfo(@Path("username") name: String): Observable<UserInfoResponse>
