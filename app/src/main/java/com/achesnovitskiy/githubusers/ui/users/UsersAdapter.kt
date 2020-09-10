@@ -12,7 +12,10 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_user.*
 
-class UsersAdapter(private val onItemClickListener: (UserItem) -> Unit) :
+class UsersAdapter(
+    private val onItemClickListener: (UserItem) -> Unit,
+    private val onReachingLastItemListener: () -> Unit
+) :
     ListAdapter<UserItem, RepoViewHolder>(
         UsersDiffCallback()
     ) {
@@ -30,6 +33,10 @@ class UsersAdapter(private val onItemClickListener: (UserItem) -> Unit) :
 
     override fun onBindViewHolder(holder: RepoViewHolder, position: Int) {
         holder.bind(getItem(position), onItemClickListener)
+
+        if (position == itemCount - 1) {
+            onReachingLastItemListener.invoke()
+        }
     }
 }
 

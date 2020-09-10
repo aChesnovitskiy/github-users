@@ -1,5 +1,6 @@
 package com.achesnovitskiy.githubusers.ui.users
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import com.achesnovitskiy.githubusers.R
@@ -24,11 +25,18 @@ interface UsersViewModel {
 class UsersViewModelImpl @Inject constructor(private val repository: Repository) :
     ViewModel(), UsersViewModel {
 
+    private var lastLoadedUserId: Int = 0
+
     private val loadingStateBehaviorSubject: BehaviorSubject<LoadingState> =
         BehaviorSubject.create()
 
     override val usersObservable: Observable<List<UserItem>>
         get() = repository.userItemsObservable
+            .map { userItems ->
+                lastLoadedUserId = userItems.last().id
+
+                userItems
+            }
 
     override val loadingStateObservable: Observable<LoadingState>
         get() = loadingStateBehaviorSubject
@@ -38,7 +46,7 @@ class UsersViewModelImpl @Inject constructor(private val repository: Repository)
     init {
         loadUsersObserver
             .switchMap {
-                repository.loadUsersCompletable()
+                repository.loadUsersCompletable(lastLoadedUserId)
                     .andThen(
                         Observable.just(
                             LoadingState(
@@ -53,6 +61,9 @@ class UsersViewModelImpl @Inject constructor(private val repository: Repository)
                             errorRes = null
                         )
                     )
+                    .doOnError {
+                        Log.e("My_UsersViewModel", it.message, it)
+                    }
                     .onErrorReturnItem(
                         LoadingState(
                             isLoading = false,
